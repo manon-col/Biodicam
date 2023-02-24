@@ -1,0 +1,72 @@
+<!DOCTYPE HTML>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='fr'>
+
+<head>
+	<title>Sélection des données à afficher</title>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+	<link rel="stylesheet" href="style.css" />
+	<link rel="icon" type="image/png" href="img/econect-favicon.png" />
+
+</head>
+
+<body>
+
+<div id="header_t" class="site-header">
+	<table id="entete" border=0>
+		<tr height=250px>
+
+			<td width=5px>
+
+			</td>
+			<td width = 20%>
+				<img src = "img/logo-econect.png" width=250px>
+			</td>
+			
+			<td td width=75%>
+				<h1 style="text-align: center; top: 0px; font-size: 1.4 em; color: #B45F04; line-height:0.4; font-weight: bold;">BiodiCam</h1>
+			</td>
+
+		</tr>
+	</table>
+</div>
+
+<!-- *****************************TEXTE A MODIFIER********************************** !-->
+
+<div id="section" style="text-align: center;">
+
+<table style="margin: 0 auto;">
+
+<tr>
+<td>
+<form id="formulaire" action="/cgi-bin/cam_status_change.py" Method="post" accept-charset="utf-8" lang="fr" >
+<input type="submit" name="stop_res" value="Stop / resume" id= "send_button" style="height: 100px; width: 400px; font-size: 4em;";>
+</form>
+</td>
+<td width=2%>
+
+</td>
+<td>
+<form id="formulaire2" action="/cgi-bin/preview.py" Method="post" accept-charset="utf-8" lang="fr" >
+<input type="submit" name="preview" value="Preview" id= "send_button" style="height: 100px; width: 400px; font-size: 4em;";>
+</form>
+</td>
+</tr>
+</table>
+</div>
+
+
+<!-- *********************************AUTRES ELEMENTS DE LA PAGE************************************** !-->
+
+
+
+
+
+
+
+
+
+<div id="footer" style="color: #B45F04;">
+	Copyright © Econect
+</div>
+ 
+</body></html>
