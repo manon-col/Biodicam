@@ -5,7 +5,7 @@ from threading import Thread
 
 # définition des paramètres du timelapse
 DURATION = 3600    # Durée du timelapse (1heure)
-INTERVAL = 60      # Intervalle entre deux photos
+INTERVAL = 10      # Intervalle entre deux photos
 WIDTH = 1920       # Résolution horizontale
 HEIGHT = 1088      # Résolution verticale
 num_photos = int(DURATION / INTERVAL) #Nombre de photos à capturer dans l'intervalle et avec le pas de temps
@@ -44,18 +44,16 @@ thread.start()
 
 while True:
     if cam_state == "record":
-        if info_stop_toDisp:
-            print("Camera started")
-            info_stop_toDisp = False
-        now = time.time()
+        info_stop_toDisp = True
+        ref_time = time.time()
         for i in range(num_photos):
-            time_stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+            now = ref_time + i*INTERVAL
+            time_stamp = datetime.datetime.fromtimestamp(now).strftime("%Y%m%d-%H%M%S")
             filename = "/var/www/html/img/biodicam/" + time_stamp + ".jpg"
             camera.capture(filename)
             time.sleep(INTERVAL)
-            now += INTERVAL
     
     else:
-        if not info_stop_toDisp:
+        if info_stop_toDisp == True:
             print("Camera stopped")
-            info_stop_toDisp = True
+            info_stop_toDisp = False
