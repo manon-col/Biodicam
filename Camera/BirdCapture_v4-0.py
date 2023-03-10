@@ -1,6 +1,7 @@
 import time
-import picamera
 import datetime
+import picamera
+from threading import Thread
 
 # définition des paramètres du timelapse
 DURATION = 3600    # Durée du timelapse (1heure)
@@ -12,13 +13,49 @@ num_photos = int(DURATION / INTERVAL) #Nombre de photos à capturer dans l'inter
 camera = picamera.PiCamera()
 camera.resolution = (WIDTH, HEIGHT)
 
-# Start time lapse
-now = datetime.datetime.now()
-for i in range(num_photos):
-    time_stamp = now.strftime("%Y%m%d-%H%M%S")
-    filename = "/var/www/html/img/biodicam/" + time_stamp + ".jpg"
-    camera.capture(filename)
-    time.sleep(INTERVAL)
-    now += datetime.timedelta(seconds=INTERVAL)
+# Initialisation de la variable globale
+cam_state = "idle"
 
-camera.close()
+class check_status(Thread):
+    def __init__(self,time_interval):
+        Thread.__init__(self)
+        self.time_interval =  time_interval
+        self.last_check = time.time()    
+    def run(self):
+        global cam_state
+        cam_state = "running"
+        
+        print("Thread running...")
+        
+        while True:
+            now = time.time()
+            if now - self.last_check > self.time_interval:
+                self.last_check = now
+                fichier = open("/var/www/cgi-bin/cam_state.txt", "r")
+                cam_state = fichier.read().strip()
+                fichier.close()
+
+
+# Start time lapse
+info_stop_toDisp = True
+
+thread = check_status(1)
+thread.start()
+
+while True:
+    if cam_state == "record":
+        if info_stop_toDisp:
+            print("Camera started")
+            info_stop_toDisp = False
+        now = time.time()
+        for i in range(num_photos):
+            time_stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+            filename = "/var/www/html/img/biodicam/" + time_stamp + ".jpg"
+            camera.capture(filename)
+            time.sleep(INTERVAL)
+            now += INTERVAL
+    
+    else:
+        if not info_stop_toDisp:
+            print("Camera stopped")
+            info_stop_toDisp = True
