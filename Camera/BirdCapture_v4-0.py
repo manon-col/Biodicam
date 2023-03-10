@@ -4,35 +4,31 @@
 
 import time
 import picamera
-import numpy as np
-import cv2
 from threading import Thread
+from datetime import timedelta
 
-BURST = 8        # Number of pics per burst
-LATENCY = 4.0       # Minimal time (in sec.) between two bursts
 WIDTH = 1920      # Horizontal resolution of recorded pics
 HEIGHT =1088     # Vertical resolution of recorded pics
 FPS = 12          # Camera frame rate
-THRESHOLD = 5.0  # % change in pixels to detect motion
 CHECK_INTERVAL = 1 # Interval of time (in sec.) between cam status checking
 
-counter = 0
-percent_diff = 0.0
-filenames_list = []
 cam_state = "--"
-info_stop_toDisp = True
 
 camera = picamera.PiCamera()
 camera.resolution = (WIDTH, HEIGHT)
 camera.framerate = FPS
 
 class check_status(Thread):
+    
     def __init__(self,time_interval):
         Thread.__init__(self)
         self.time_interval =  time_interval
-        self.last_check = time.time()    
+        self.last_check = time.time() 
+        
     def run(self):
         global cam_state
+        global timelapse_state
+        
         cam_state = "running"
         
         print("Thread running...")
@@ -48,61 +44,79 @@ class check_status(Thread):
                 fichier = open("/var/www/cgi-bin/cam_state.txt", "r")
                 cam_state = fichier.read()
                 fichier.close()
+                
+                fichier = open("/var/www/cgi-bin/timelapse_state.txt", "r")
+                timelapse_state = fichier.read()
+                fichier.close()
+                
 
-def displayInfo():
-    global lastDisp
-    if now-lastPic_time > LATENCY:
-        print("Diff. between pics: " + str(round(percent_diff,1)) + "%")
-    else:
-        timeBeforeResume = round(LATENCY - (now-lastPic_time))
-        if now - lastDisp >= 1:
-            print("Pause between bursts (" + str(timeBeforeResume) + " sec. before resume)")
-            lastDisp = now
-
-def recordBurst():
-    global filenames_list, lastPic_time, percent_diff
+def record(interval):
+    global lastPic_time
     time_stamp = time.strftime("%Y%m%d-%H%M%S", time.localtime())
-    print("Pic recorded (" + time_stamp + ")!")
-    filename = "/var/www/html/img/biodicam/" + time_stamp + "_(" + str(round(percent_diff,0)) + ").jpg"
-    cv2.imwrite(filename, frame)
-    print("Camera status: " + cam_state)
-    #filenames_list = []
+    filename = "/var/www/html/img/biodicam/" + time_stamp + ".jpg"
+    camera.capture(filename)
     lastPic_time = now
-    percent_diff = 0.0
+    time.sleep(interval)
 
+
+# Camera warm-up time
 time.sleep(2)
+
 now = time.time()
 lastPic_time = now
-lastDisp = now
-
-frame0 = np.empty((1088, 1920, 3), dtype=np.uint8)
-frame = np.empty((1088, 1920, 3), dtype=np.uint8)
-camera.capture(frame0, 'bgr')
-
-frame0_light = cv2.resize(frame0,(192,108),interpolation = cv2.INTER_AREA)
 
 thread_statusCheck = check_status(CHECK_INTERVAL)
 thread_statusCheck.start()
 
+
 while True:
     if cam_state == "record":
-        info_stop_toDisp = True
-        now = time.time()
-        if percent_diff > THRESHOLD and now - lastPic_time > LATENCY:
-            recordBurst()
+                
+        if timelapse_state == "on":
+                        
+            # Heure actuelle
+            current_hour = time.strftime("%H", time.localtime())
             
-        else:
-            camera.capture(frame, 'bgr')
-            frame_light = cv2.resize(frame,(192,108),interpolation = cv2.INTER_AREA)	
-            diff = cv2.absdiff(frame0_light,frame_light) 
-            img_black = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
-            percent_black = round(np.sum(img_black < 10)/(192*108),2)
-            percent_diff = (1-percent_black)*100
-
-        displayInfo()
-        frame0_light = frame_light
-        
-    else:
-        if info_stop_toDisp == True:
-            print("Camera stopped")
-            info_stop_toDisp = False
+            # Lecture de la durée totale du timelapse (heures, pauses incluses)
+            fichier = open("/var/www/cgi-bin/duration.txt", "r")
+            total_duration = timedelta(hours=int(fichier.read())).seconds
+            fichier.close()
+            timelapse_end = time.time()+total_duration
+            
+            # Lecture de l'intervalle entre 2 photos (secondes)
+            fichier = open("/var/www/cgi-bin/interval.txt", "r")
+            interval = int(fichier.read())
+            fichier.close()
+            
+            # Lecture de la tranche horaire de prise de vue
+            fichier = open("/var/www/cgi-bin/time_range.txt", "r")
+            #  1ère ligne du fichier texte = heure de debut
+            start = int(fichier.readlines()[0].rstrip())
+            #  2ème ligne = heure de fin
+            end = int(fichier.readlines()[1].rstrip())
+            
+            # 1er jour (camera jamais arretee)
+            first_day = True
+            
+            # Timelapse en cours tant qu'on n'excède pas la duree totale
+            while time.time() < timelapse_end:
+                
+                # Début du timelapse si >= heure début tranche horaire
+                if current_hour >= start:
+                    
+                    # On rallume la camera si ce n'est pas le 1er jour
+                    if first_day == False:
+                        camera = picamera.PiCamera()
+                        camera.resolution = (WIDTH, HEIGHT)
+                        camera.framerate = FPS
+                        time.sleep(2)     # warm-up
+                    
+                    # Timelapse dure jusqu'a la fin de la tranche horaire
+                    while current_hour < end and time.time() < timelapse_end:
+                        record(interval)
+                        current_hour = time.strftime("%H", time.localtime())
+                        
+                    camera.close()
+                    first_day = False
+                    
+                current_hour = time.strftime("%H", time.localtime())
