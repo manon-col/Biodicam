@@ -21,8 +21,8 @@ def get_ip():
 hostname = socket.gethostname()
 ip_biodicam = get_ip()
 
-#ip_biodicam = check_output(['hostname', '-I'])[0:-2] # ne fonctionne que quand connecté au Wifi (en plus du point d'accès)
-#ip_biodicam = "192.168.167.238" # IP sujette à modification
+#ip_biodicam = check_output(['hostname', '-I'])[0:-2] # ne fonctionne que quand connectÃ© au Wifi (en plus du point d'accÃ¨s)
+#ip_biodicam = "192.168.167.238" # IP sujette Ã  modification
 
 print("Content-Type: text/html; charset=utf-8\n\n")         
 
@@ -36,7 +36,7 @@ else:
 	cam_status = "Camera stopped!"
 
 
-# Lecture du n° d'image à afficher
+# Lecture du nÂ° d'image Ã  afficher
 fichier2 = open("picture_num.txt", "r")
 pic_num = int(fichier2.read())
 fichier2.close()
@@ -65,35 +65,25 @@ file_name_disp = file_names[pic_num-1]
 
 print '''
 <head>
-	<title>Sélection des données à afficher</title>
+	<title>SÃ©lection des donnÃ©es Ã  afficher</title>
 	<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 	<link rel="stylesheet" href="style.css" />
 	<link rel="icon" type="image/png" href="img/econect-favicon.png" />
 	
 	<style>
-
-/* Pour info, codes couleurs utilisés :
-Bleu super foncé : #333A40
+/* Pour info, codes couleurs utilisÃ©s :
+Bleu super foncÃ© : #333A40
 Bleu roy : #1f497d
 Bleu clair moyen : #729EBF
-Bleu très clair : #E6EBFF
-
+Bleu trÃ¨s clair : #E6EBFF
 */
-
 body {
     font-size: 100%;
 	background-color:#E6EBFF;
 }
-
-
-
-
-
 #toto { 
-
 }
   
-
 #header_t {
     background-color:#F5DA81;
     color:white;
@@ -108,19 +98,14 @@ body {
 	z-index: 2000;
 	transform: scale(1); 
 }
-
-
-
-
-
 #section {
 	width: 90%; 
 	margin-left: auto;
 	margin-right: auto;
 	top: 260px;
-	position: absolute; /* absolute à l'origine */
+	position: absolute; /* absolute Ã  l'origine */
 	background-color:;
-	height: 500px; /* auto à l'origine */
+	height: 500px; /* auto Ã  l'origine */
     padding:2%;	
 	font-family: Arial;
 	font-size: 1em;
@@ -128,7 +113,6 @@ body {
 	line-height:1em;
 	transform: scale(1); 
 }
-
 #section-monitoring {
 	width: 100%; 
 	margin-left: auto;
@@ -145,7 +129,6 @@ body {
 	line-height:1.2em;
 	transform: scale(1); 
 }
-
 #footer {
     background-color:#F5DA81;
 	position: fixed;
@@ -164,7 +147,6 @@ body {
 	z-index: 1995;
 	transform: scale(1); 
 }
-
 #back_menu {
     background-color:white;
 	position: fixed;
@@ -183,8 +165,6 @@ body {
 	z-index: 1900;
 	transform: scale(1); 
 }
-
-
 #input_field{
 	font-size: 6em;
 	width: 280px;
@@ -196,7 +176,6 @@ body {
 	text-align: center;
 	
 }
-
 #select_list{
 font-size: 6em;
 	width: 380px;
@@ -209,18 +188,14 @@ font-size: 6em;
 	color:rgba(0,0,0,0);
 	text-shadow: 0 0 0 #000;
 }
-
 #radio_button{
     border: 1px;
 	border-style: solid;
 	font-size: 1.9em;
 }
-
 #radio_text{
 	font-size: 1.6em;
 }
-
-
 #send_button{
 	width: 200px;
 	height: 120px;
@@ -257,25 +232,18 @@ font-size: 6em;
 	border-width: 0.5px;
 	border-color: black;
 	}
-
 	
 #squ-select:hover {
     background: #F7BE81;
 	color: white;
 	text-decoration-color: #729EBF;
 }
-
-
-
 	
 #formulaire{
 	font-style: normal;
 	font-size:0.875em;
 	width: 100%;
 }
-
-
-
 h1{
 	text-align: left;
 	position: relative;
@@ -284,34 +252,28 @@ h1{
 	color: #1f497d;
 	font-family: Arial;
 }
-
 h2 {
     font-size: 1.2em;
 	text-align: left;
 	line-height: 1.4em;
 	font-family: Arial;
 }
-
-
 h3{
 	text-align: center;
 	font-size: 1em;
 	line-height: 0.6em;
 	vertical-align: middle;
 }
-
 h4{
 	text-align: center;
 	font-size: 6em;
 	line-height: 1.2em;
 }
-
 h5{
 	text-align: center;
 	font-size: 4em;
 	line-height: 1.4em;
 }
-
 #frame { /* Example size! */
 	position : fixed;
 	top: 20;
@@ -322,27 +284,17 @@ h5{
 #frame {
     height: 500px; /* new height (400 * (1/0.8) ) */
     width: 100%; /* new width (100 * (1/0.8) )*/
-
     transform: scale(2.5); 
     transform-origin: 0 0;
 }
-
-
  
-
-
 </style>
-
 </head>
-
 <body>
-
 <div id="header_t" class="site-header">
 	<table id="entete" border=0>
 		<tr height=250px>
-
 			<td width=5px>
-
 			</td>
 			<td width = 20%>
 				<img src = "http://
@@ -356,19 +308,13 @@ print '''
 			<td td width=75%>
 				<h1 style="text-align: center; top: 30px; font-size: 1.4 em; color: #B45F04; line-height:1; font-weight: bold;">BiodiCam</h1>
 			</td>
-
 		</tr>
 	</table>
 </div>
-
-
-
 <!-- *****************************TEXTE A MODIFIER********************************** !-->
-
 <div id="section" style="text-align: center; top: 370px;">
 <br><br><br>
 <table style="margin: 0 auto;">
-
 <tr>
 '''
 if state == "record":
@@ -389,10 +335,8 @@ else:
 	'''
 
 print '''
-
 </tr>
 </table>
-
 </div>
 '''
 
@@ -409,41 +353,47 @@ print("""
 </td></tr>
 </table>
 </div>
-
 """) % (file_path, file_name_disp)
 
 print """
 <div style = "top: 1250px; position: absolute; ">
 <table>
-
 <tr>
 <td width = 2%>
 </td>
 <td width = 8%>
 <form id="formulaire" action="/cgi-bin/first_pic.py" Method="post" accept-charset="utf-8" lang="fr" >
-<input type="submit" name="stop_res" value="<<" id= "send_button" style="height: 100px; width: 100px; font-size: 4em;">
+<input type="submit" name="first_pic" value="<<" id= "send_button" style="height: 100px; width: 100px; font-size: 4em;">
 </form>
 </td>
 <td width = 2%>
 </td>
 <td width = 8%>
 <form id="formulaire" action="/cgi-bin/previous_pic.py" Method="post" accept-charset="utf-8" lang="fr" >
-<input type="submit" name="stop_res" value="<" id= "send_button" style="height: 100px; width: 100px; font-size: 4em;">
+<input type="submit" name="previous_pic" value="<" id= "send_button" style="height: 100px; width: 100px; font-size: 4em;">
+</form>
+</td>
+
+<td width>
+</td>
+<td width = 24%>
+<form id="formulaire" action="/cgi-bin/last_pic.py" Method="post" accept-charset="utf-8" lang="fr" >
+<input type="submit" name="update_page" value="Refresh"; id= "send_button" style="height: 100px; width: 300px; font-size: 4em;">
 </form>
 </td>
 <td width>
-
 </td>
+
 <td width = 8%>
-<form id="formulaire2" action="/cgi-bin/next_pic.py" Method="post" accept-charset="utf-8" lang="fr" >
-<input type="submit" name="preview" value=">" id= "send_button" style="height: 100px; width: 100px; font-size: 4em;">
+<form id="formulaire" action="/cgi-bin/next_pic.py" Method="post" accept-charset="utf-8" lang="fr" >
+<input type="submit" name="next_pic" value=">" id= "send_button" style="height: 100px; width: 100px; font-size: 4em;">
 </form>
 </td>
 <td width = 2%>
 </td>
 <td width = 8%>
 <form id="formulaire" action="/cgi-bin/last_pic.py" Method="post" accept-charset="utf-8" lang="fr" >
-<input type="submit" name="stop_res" value=">>" id= "send_button" style="height: 100px; width: 100px; font-size: 4em;">
+<input type="submit" name="last_pic" value=">>" id= "send_button" style="height: 100px; width: 100px; font-size: 4em;">
 </form>
 </td>
 <td width = 2%>
@@ -454,22 +404,10 @@ print """
 """
 
 print """
-
-
-
 <!-- *********************************AUTRES ELEMENTS DE LA PAGE************************************** !-->
-
-
-
-
-
-
-
 <div id="footer" style="color: #B45F04;">
 	Copyright Econect
 </div>
  
 </body></html>
-
 """ 
-

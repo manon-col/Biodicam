@@ -6,15 +6,22 @@
 import time
 import picamera
 from threading import Thread
-from datetime import timedelta
 
 
 WIDTH = 1920         # Horizontal resolution of recorded pics
-HEIGHT =1088         # Vertical resolution of recorded pics
+HEIGHT = 1088         # Vertical resolution of recorded pics
 CHECK_INTERVAL = 1   # Interval of time (in sec.) between cam status checking
 
 cam_state = ''
 timelapse_state = ''
+
+# To be sure that cam and timelapse modes are off when the pi starts
+fichier = open("/var/www/cgi-bin/cam_state.txt", "w")
+fichier.write("stop")
+fichier.close()
+fichier = open("/var/www/cgi-bin/timelapse_state.txt", "w")
+fichier.write("off")
+fichier.close()
 
 
 class check_status(Thread):
@@ -77,7 +84,7 @@ def get_timelapse_params():
     
     # Reading the total timelapse duration (hours, pauses included)
     fichier = open("/var/www/cgi-bin/duration.txt", "r")
-    total_duration = timedelta(hours=int(fichier.read())).seconds
+    total_duration = int(fichier.read())*3600
     fichier.close()
     timelapse_end = time.time() + total_duration
     
@@ -139,7 +146,7 @@ while True:
                 record(preview=False, pause=interval)
             
             # Camera stopped at night (or at the very end of timelapse)
-            if current_hour >= range_end or current_hour >= timelapse_end:
+            if current_hour >= range_end or time.time() >= timelapse_end:
                 camera.close()
                 print("Camera stopped")
                 cam_closed = True
@@ -163,7 +170,7 @@ while True:
                 time.sleep(2)     # warm-up time
                 print("Camera activated")
                 cam_closed = False
-            record(preview=True, pause=2)
+            record(preview=True, pause=5)
     
     elif cam_closed == False:
         camera.close()
