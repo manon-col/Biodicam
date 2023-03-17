@@ -4,6 +4,11 @@
 import socket
 import os
 from subprocess import check_output
+import cgi
+import cgitb; cgitb.enable()
+
+print("Content-Type: text/html; charset=utf-8\n\n")         
+
 
 def get_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -24,7 +29,6 @@ ip_biodicam = get_ip()
 #ip_biodicam = check_output(['hostname', '-I'])[0:-2] # ne fonctionne que quand connecté au Wifi (en plus du point d'accès)
 #ip_biodicam = "192.168.167.238" # IP sujette à modification
 
-print("Content-Type: text/html; charset=utf-8\n\n")         
 
 fichier = open("cam_state.txt", "r")
 state = fichier.read()
@@ -62,6 +66,8 @@ if pic_num < 1:
 file_path = "http://"+ ip_biodicam + "/img/biodicam/" + file_names[pic_num-1]
 
 file_name_disp = file_names[pic_num-1]
+
+
 
 print '''
 <head>
@@ -376,13 +382,6 @@ print """
 
 <td width>
 </td>
-<td width = 24%>
-<form id="formulaire" action="/cgi-bin/last_pic.py" Method="post" accept-charset="utf-8" lang="fr" >
-<input type="submit" name="update_page" value="Refresh"; id= "send_button" style="height: 100px; width: 300px; font-size: 4em;">
-</form>
-</td>
-<td width>
-</td>
 
 <td width = 8%>
 <form id="formulaire" action="/cgi-bin/next_pic.py" Method="post" accept-charset="utf-8" lang="fr" >
@@ -403,11 +402,69 @@ print """
 </div>
 """
 
+
+print"""
+<div style = "top: 1400px; position: absolute; text-align: center; font-size: 2em;">
+<table>
+<form id="formulaire" method="get" action="/cgi-bin/timelapse_init.cgi">
+
+    <div style="margin-bottom: 10px">
+        <label>Durée totale du timelapse (en heures, pauses incluses) :</label>
+        <input type="text" name="duration">
+    </div>
+    <div style="margin-bottom: 10px">
+        <label>Début de la tranche horaire (heure, ex : 8) :</label>
+        <input type="text" name="start">
+    </div>
+    <div style="margin-bottom: 10px">
+        <label>Fin de la tranche horaire (ex: 18) :</label>
+        <input type="text" name="end">
+    </div>
+    <div style="margin-bottom: 20px;">
+        <label>Intervalle entre 2 images (en secondes) :</label>
+        <input type="text" name="interval">
+    </div>
+    <div class="button">
+        <button type="submit" id="send_button" style="height: 100px; width: 600px;">Lancer le timelapse</button>
+    </div>
+</table>
+</form>
+"""
+
+
+# if "interval" in form :
+    
+#     with open('data.txt', 'w') as file:
+#         file.write(f"{duration}\n{start}\n{end}\n{interval}")
+#     with open("cam_state.txt", w) as file:
+#         file.write("record")
+#         with open("timelapse_state.txt") as file:
+#         file.write("off")
+    
+# print"""
+# <div style = "top: 1400px; position: absolute; text-align: center; margin: 0px 100px;">
+
+# <form name="form" method="get" style="font-size: 2em;" onsubmit="saveData(event)">
+
+# <tr><td>Durée totale du timelapse (en heures, pauses incluses) :</td><td><input type=text name=duration><td></tr>
+# <tr><td>Début de la tranche horaire (heure, exemple : 8) :</td><td><input type="text" name=start><td></tr>
+# <tr><td>Fin de la tranche horaire (exemple : 18) :</td><td><input type="text" name=end><td></tr>
+# <tr><td>Intervalle entre 2 images (en secondes) :</td><td><input type="text" name=interval><td></tr>
+# <tr><td><input type="submit" value="Submit"></td><td> </td></tr>
+
+# </form>
+
+# </div>
+# """
+# const inputs = document.getElementById("form").elements;
+
+
 print """
 <!-- *********************************AUTRES ELEMENTS DE LA PAGE************************************** !-->
 <div id="footer" style="color: #B45F04;">
 	Copyright Econect
 </div>
  
-</body></html>
-""" 
+</body>
+</html>
+"""

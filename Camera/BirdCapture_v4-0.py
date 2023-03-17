@@ -161,7 +161,7 @@ while True:
                 fichier.close()
                 get_params = False
         
-        # Out of timelapse, record a "preview" pic updated every 2 sec
+        # out of timelapse, record a "preview" pic updated every 2 sec
         else:
             get_params = False
             if cam_closed:
@@ -172,8 +172,10 @@ while True:
                 cam_closed = False
             record(preview=True, pause=5)
     
+    # when the camera is stopped (not automatically during the timelapse, but
+    # by the user)
     elif cam_closed == False:
         camera.close()
         print("Camera stopped")
         cam_closed = True
-        get_params = False
+        if timelapse_state == "off": get_params = False # True when just paused
