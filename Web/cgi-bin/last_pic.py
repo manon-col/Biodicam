@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#!/usr/bin/python
 #-*- coding: utf-8 -*-
 
 import os
@@ -11,4 +11,3 @@ fichier.write(str(nb_pic))
 fichier.close()	
 	
 os.system('python display_page.py')
-		

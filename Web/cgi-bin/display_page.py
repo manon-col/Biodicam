@@ -1,9 +1,14 @@
-#! /usr/bin/python
+#!/usr/bin/python
 #-*- coding: utf-8 -*-
 
 import socket
 import os
 from subprocess import check_output
+import cgi
+import cgitb; cgitb.enable()
+
+print("Content-Type: text/html; charset=utf-8\n\n")         
+
 
 def get_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -21,10 +26,9 @@ def get_ip():
 hostname = socket.gethostname()
 ip_biodicam = get_ip()
 
-#ip_biodicam = check_output(['hostname', '-I'])[0:-2] # ne fonctionne que quand connectÈ au Wifi (en plus du point d'accËs)
-#ip_biodicam = "192.168.167.238" # IP sujette ‡ modification
+#ip_biodicam = check_output(['hostname', '-I'])[0:-2] # ne fonctionne que quand connect√© au Wifi (en plus du point d'acc√®s)
+#ip_biodicam = "192.168.167.238" # IP sujette √† modification
 
-print("Content-Type: text/html; charset=utf-8\n\n")         
 
 fichier = open("cam_state.txt", "r")
 state = fichier.read()
@@ -36,7 +40,7 @@ else:
 	cam_status = "Camera stopped!"
 
 
-# Lecture du n∞ d'image ‡ afficher
+# Lecture du n¬∞ d'image √† afficher
 fichier2 = open("picture_num.txt", "r")
 pic_num = int(fichier2.read())
 fichier2.close()
@@ -63,37 +67,29 @@ file_path = "http://"+ ip_biodicam + "/img/biodicam/" + file_names[pic_num-1]
 
 file_name_disp = file_names[pic_num-1]
 
+
+
 print '''
 <head>
-	<title>SÈlection des donnÈes ‡ afficher</title>
+	<title>S√©lection des donn√©es √† afficher</title>
 	<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 	<link rel="stylesheet" href="style.css" />
 	<link rel="icon" type="image/png" href="img/econect-favicon.png" />
 	
 	<style>
-
-/* Pour info, codes couleurs utilisÈs :
-Bleu super foncÈ : #333A40
+/* Pour info, codes couleurs utilis√©s :
+Bleu super fonc√© : #333A40
 Bleu roy : #1f497d
 Bleu clair moyen : #729EBF
-Bleu trËs clair : #E6EBFF
-
+Bleu tr√®s clair : #E6EBFF
 */
-
 body {
     font-size: 100%;
 	background-color:#E6EBFF;
 }
-
-
-
-
-
 #toto { 
-
 }
   
-
 #header_t {
     background-color:#F5DA81;
     color:white;
@@ -108,19 +104,14 @@ body {
 	z-index: 2000;
 	transform: scale(1); 
 }
-
-
-
-
-
 #section {
 	width: 90%; 
 	margin-left: auto;
 	margin-right: auto;
 	top: 260px;
-	position: absolute; /* absolute ‡ l'origine */
+	position: absolute; /* absolute √† l'origine */
 	background-color:;
-	height: 500px; /* auto ‡ l'origine */
+	height: 500px; /* auto √† l'origine */
     padding:2%;	
 	font-family: Arial;
 	font-size: 1em;
@@ -128,7 +119,6 @@ body {
 	line-height:1em;
 	transform: scale(1); 
 }
-
 #section-monitoring {
 	width: 100%; 
 	margin-left: auto;
@@ -145,7 +135,6 @@ body {
 	line-height:1.2em;
 	transform: scale(1); 
 }
-
 #footer {
     background-color:#F5DA81;
 	position: fixed;
@@ -164,7 +153,6 @@ body {
 	z-index: 1995;
 	transform: scale(1); 
 }
-
 #back_menu {
     background-color:white;
 	position: fixed;
@@ -183,8 +171,6 @@ body {
 	z-index: 1900;
 	transform: scale(1); 
 }
-
-
 #input_field{
 	font-size: 6em;
 	width: 280px;
@@ -196,7 +182,6 @@ body {
 	text-align: center;
 	
 }
-
 #select_list{
 font-size: 6em;
 	width: 380px;
@@ -209,18 +194,14 @@ font-size: 6em;
 	color:rgba(0,0,0,0);
 	text-shadow: 0 0 0 #000;
 }
-
 #radio_button{
     border: 1px;
 	border-style: solid;
 	font-size: 1.9em;
 }
-
 #radio_text{
 	font-size: 1.6em;
 }
-
-
 #send_button{
 	width: 200px;
 	height: 120px;
@@ -257,25 +238,18 @@ font-size: 6em;
 	border-width: 0.5px;
 	border-color: black;
 	}
-
 	
 #squ-select:hover {
     background: #F7BE81;
 	color: white;
 	text-decoration-color: #729EBF;
 }
-
-
-
 	
 #formulaire{
 	font-style: normal;
 	font-size:0.875em;
 	width: 100%;
 }
-
-
-
 h1{
 	text-align: left;
 	position: relative;
@@ -284,34 +258,28 @@ h1{
 	color: #1f497d;
 	font-family: Arial;
 }
-
 h2 {
     font-size: 1.2em;
 	text-align: left;
 	line-height: 1.4em;
 	font-family: Arial;
 }
-
-
 h3{
 	text-align: center;
 	font-size: 1em;
 	line-height: 0.6em;
 	vertical-align: middle;
 }
-
 h4{
 	text-align: center;
 	font-size: 6em;
 	line-height: 1.2em;
 }
-
 h5{
 	text-align: center;
 	font-size: 4em;
 	line-height: 1.4em;
 }
-
 #frame { /* Example size! */
 	position : fixed;
 	top: 20;
@@ -322,27 +290,17 @@ h5{
 #frame {
     height: 500px; /* new height (400 * (1/0.8) ) */
     width: 100%; /* new width (100 * (1/0.8) )*/
-
     transform: scale(2.5); 
     transform-origin: 0 0;
 }
-
-
  
-
-
 </style>
-
 </head>
-
 <body>
-
 <div id="header_t" class="site-header">
 	<table id="entete" border=0>
 		<tr height=250px>
-
 			<td width=5px>
-
 			</td>
 			<td width = 20%>
 				<img src = "http://
@@ -356,19 +314,13 @@ print '''
 			<td td width=75%>
 				<h1 style="text-align: center; top: 30px; font-size: 1.4 em; color: #B45F04; line-height:1; font-weight: bold;">BiodiCam</h1>
 			</td>
-
 		</tr>
 	</table>
 </div>
-
-
-
 <!-- *****************************TEXTE A MODIFIER********************************** !-->
-
 <div id="section" style="text-align: center; top: 370px;">
 <br><br><br>
 <table style="margin: 0 auto;">
-
 <tr>
 '''
 if state == "record":
@@ -389,10 +341,8 @@ else:
 	'''
 
 print '''
-
 </tr>
 </table>
-
 </div>
 '''
 
@@ -409,41 +359,40 @@ print("""
 </td></tr>
 </table>
 </div>
-
 """) % (file_path, file_name_disp)
 
 print """
 <div style = "top: 1250px; position: absolute; ">
 <table>
-
 <tr>
 <td width = 2%>
 </td>
 <td width = 8%>
 <form id="formulaire" action="/cgi-bin/first_pic.py" Method="post" accept-charset="utf-8" lang="fr" >
-<input type="submit" name="stop_res" value="<<" id= "send_button" style="height: 100px; width: 100px; font-size: 4em;">
+<input type="submit" name="first_pic" value="<<" id= "send_button" style="height: 100px; width: 100px; font-size: 4em;">
 </form>
 </td>
 <td width = 2%>
 </td>
 <td width = 8%>
 <form id="formulaire" action="/cgi-bin/previous_pic.py" Method="post" accept-charset="utf-8" lang="fr" >
-<input type="submit" name="stop_res" value="<" id= "send_button" style="height: 100px; width: 100px; font-size: 4em;">
+<input type="submit" name="previous_pic" value="<" id= "send_button" style="height: 100px; width: 100px; font-size: 4em;">
 </form>
 </td>
-<td width>
 
+<td width>
 </td>
+
 <td width = 8%>
-<form id="formulaire2" action="/cgi-bin/next_pic.py" Method="post" accept-charset="utf-8" lang="fr" >
-<input type="submit" name="preview" value=">" id= "send_button" style="height: 100px; width: 100px; font-size: 4em;">
+<form id="formulaire" action="/cgi-bin/next_pic.py" Method="post" accept-charset="utf-8" lang="fr" >
+<input type="submit" name="next_pic" value=">" id= "send_button" style="height: 100px; width: 100px; font-size: 4em;">
 </form>
 </td>
 <td width = 2%>
 </td>
 <td width = 8%>
 <form id="formulaire" action="/cgi-bin/last_pic.py" Method="post" accept-charset="utf-8" lang="fr" >
-<input type="submit" name="stop_res" value=">>" id= "send_button" style="height: 100px; width: 100px; font-size: 4em;">
+<input type="submit" name="last_pic" value=">>" id= "send_button" style="height: 100px; width: 100px; font-size: 4em;">
 </form>
 </td>
 <td width = 2%>
@@ -453,23 +402,69 @@ print """
 </div>
 """
 
+
+print"""
+<div style = "top: 1400px; position: absolute; text-align: center; font-size: 2em;">
+<table>
+<form id="formulaire" method="get" action="/cgi-bin/timelapse_init.cgi">
+
+    <div style="margin-bottom: 10px">
+        <label>Dur√©e totale du timelapse (en heures, pauses incluses) :</label>
+        <input type="text" name="duration">
+    </div>
+    <div style="margin-bottom: 10px">
+        <label>D√©but de la tranche horaire (heure, ex : 8) :</label>
+        <input type="text" name="start">
+    </div>
+    <div style="margin-bottom: 10px">
+        <label>Fin de la tranche horaire (ex: 18) :</label>
+        <input type="text" name="end">
+    </div>
+    <div style="margin-bottom: 20px;">
+        <label>Intervalle entre 2 images (en secondes) :</label>
+        <input type="text" name="interval">
+    </div>
+    <div class="button">
+        <button type="submit" id="send_button" style="height: 100px; width: 600px;">Lancer le timelapse</button>
+    </div>
+</table>
+</form>
+"""
+
+
+# if "interval" in form :
+    
+#     with open('data.txt', 'w') as file:
+#         file.write(f"{duration}\n{start}\n{end}\n{interval}")
+#     with open("cam_state.txt", w) as file:
+#         file.write("record")
+#         with open("timelapse_state.txt") as file:
+#         file.write("off")
+    
+# print"""
+# <div style = "top: 1400px; position: absolute; text-align: center; margin: 0px 100px;">
+
+# <form name="form" method="get" style="font-size: 2em;" onsubmit="saveData(event)">
+
+# <tr><td>Dur√©e totale du timelapse (en heures, pauses incluses) :</td><td><input type=text name=duration><td></tr>
+# <tr><td>D√©but de la tranche horaire (heure, exemple : 8) :</td><td><input type="text" name=start><td></tr>
+# <tr><td>Fin de la tranche horaire (exemple : 18) :</td><td><input type="text" name=end><td></tr>
+# <tr><td>Intervalle entre 2 images (en secondes) :</td><td><input type="text" name=interval><td></tr>
+# <tr><td><input type="submit" value="Submit"></td><td> </td></tr>
+
+# </form>
+
+# </div>
+# """
+# const inputs = document.getElementById("form").elements;
+
+
 print """
-
-
-
 <!-- *********************************AUTRES ELEMENTS DE LA PAGE************************************** !-->
-
-
-
-
-
-
-
 <div id="footer" style="color: #B45F04;">
 	Copyright Econect
 </div>
  
-</body></html>
-
-""" 
-
+</body>
+</html>
+"""
