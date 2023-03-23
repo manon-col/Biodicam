@@ -1,16 +1,16 @@
-#!/usr/bin/python
-
-print ("Content-type: text/html\n\n")
+#! /usr/bin/python
 
 import os
 import cgi
 
+print "Content-Type: text/html; charset=utf-8\n\n"
+
 form = cgi.FieldStorage()
 
-duration = form.getvalue("duration")
-start_range = form.getvalue("start")
-end_range = form.getvalue("end")
-interval = form.getvalue("interval")
+duration = form.value("duration")
+start_range = form.value("start")
+end_range = form.value("end")
+interval = form.value("interval")
 
 with open("duration.txt", "w") as fichier :
     fichier.write(duration)

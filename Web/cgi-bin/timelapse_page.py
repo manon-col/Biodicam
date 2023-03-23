@@ -1,58 +1,26 @@
 #! /usr/bin/python
 #-*- coding: utf-8 -*-
 
-import socket
 import os
-from subprocess import check_output
 
-
-print("Content-Type: text/html; charset=utf-8\n\n")         
+print("Content-Type: text/html; charset=utf-8\n\n")     
 
 ip_biodicam = '192.168.4.1'
 
+# Get size of all images in the file
+path = "/var/www/html/img/biodicam"
 
-fichier = open("cam_state.txt", "r")
-state = fichier.read()
-fichier.close()
+directory_size = 0
+for filename in os.listdir(path):
+    file_path = os.path.join(path, filename)
+    directory_size += os.path.getsize(file_path)
 
-if state == "preview":
-	cam_status = "Preview mode on" 
-elif state == "timelapse":
-	cam_status = "Timelapse in progress..."
-elif state == "pause":
-    cam_status = "Timelapse paused..."
-elif state == "stop":
-    cam_status = "Camera stopped!"
+BytesPerMB = 1024 * 1024
+directory_size = float(directory_size/BytesPerMB)
 
-
-# Lecture du n° d'image à afficher
-fichier2 = open("picture_num.txt", "r")
-pic_num = int(fichier2.read())
-fichier2.close()
-
-source_dir = "/var/www/html/img/biodicam/"
-os.chdir(source_dir)
-file_names = sorted(os.listdir(os.getcwd()), key=os.path.getmtime)
-os.chdir("/var/www/cgi-bin/")
-
-if pic_num > len(file_names):
-	pic_num = len(file_names)
-	fichier2 = open("picture_num.txt", "w")
-	fichier2.write(str(len(file_names)))
-	fichier2.close()
-	
-if pic_num < 1:
-	pic_num = 1
-	fichier2 = open("picture_num.txt", "w")
-	fichier2.write("1")
-	fichier2.close()	
-		
-#file_path = "http://"+ ip_biodicam + "/img/biodicam/" + file_names[-1]
-file_path = "http://"+ ip_biodicam + "/img/biodicam/" + file_names[pic_num-1]
-
-file_name_disp = file_names[pic_num-1]
-
-
+f = open("size.txt", "r")
+timelapse_size = f.read()
+f.close()
 
 print '''
 <head>
@@ -302,118 +270,75 @@ print '''
 		</tr>
 	</table>
 </div>
+'''
 
+print"""
 <!-- *****************************TEXTE A MODIFIER********************************** !-->
-<div id="section" style="text-align: center; top: 370px;">
-<br><br><br>
-<table style="margin: 0 auto;">
-<tr>
-'''
-if state == "stop":
-	print '''
-	<td>
-	<form id="f1" action="/cgi-bin/cam_status_change.py" method="post" accept-charset="utf-8" lang="fr" >
-	<input type="submit" name="preview" value="Preview" id= "send_button" style="height: 100px; width: 400px; font-size: 4em;";>
-	</form>
-	</td>
-	'''
-if state == 'preview':
-	print '''
-	<td>
-	<form id="f2" action="/cgi-bin/cam_status_change.py" method="post" accept-charset="utf-8" lang="fr" >
-	<input type="submit" name="stop" value="Stop preview" id= "send_button" style="height: 100px; width: 500px; font-size: 4em;";>
-	</form>
-	</td>
-	'''
-if state == "timelapse":
-    print '''
-	<td>
-	<form id="f3" action="/cgi-bin/cam_status_change.py" method="post" accept-charset="utf-8" lang="fr" >
-	<input type="submit" name="stop" value="Stop timelapse" id= "send_button" style="height: 100px; width: 500px; font-size: 4em;";>
-	</form>
-	</td>
-	'''
-if state == 'pause':
-	print '''
-	<td>
-	<form id="f4" action="/cgi-bin/cam_status_change.py" method="post" accept-charset="utf-8" lang="fr" >
-	<input type="submit" name="stop" value="Stop timelapse" id= "send_button" style="height: 100px; width: 500px; font-size: 4em;";>
-	</form>
-	</td>
-	'''
 
-print '''
-</tr>
-</table>
-</div>
-'''
+<div style = "top: 330px; position: absolute; text-align: center; font-size: 2em;">
+<td>
+Espace de stockage utilisé : 
+"""
 
-print """<div><h1 style = "top: 330px; text-align: center;font-size: 4em;">%s</h1>""" % (cam_status)
-
-print("""
-<div style = "top: 620px; position: absolute;text-align: center;">
-<table style="margin: 0 auto;">
-<tr><td>
-<img src = "%s" width=950px;>
-</td></tr>
-<tr><td style = "font-size: 2em;">
-%s
-</td></tr>
-</table>
-</div>
-""") % (file_path, file_name_disp)
+print(directory_size)
 
 print """
-<div style = "top: 1250px; position: absolute; ">
+MB
+</td>
+</div>
+
+<div style = "top: 500px; position: absolute; text-align: center; font-size: 2em;">
 <table>
-<tr>
-<td width = 2%>
-</td>
-<td width = 8%>
-<form id="formulaire" action="/cgi-bin/first_pic.py" method="post" accept-charset="utf-8" lang="fr" >
-<input type="submit" name="first_pic" value="<<" id= "send_button" style="height: 100px; width: 100px; font-size: 4em;">
-</form>
-</td>
-<td width = 2%>
-</td>
-<td width = 8%>
-<form id="formulaire" action="/cgi-bin/previous_pic.py" method="post" accept-charset="utf-8" lang="fr" >
-<input type="submit" name="previous_pic" value="<" id= "send_button" style="height: 100px; width: 100px; font-size: 4em;">
-</form>
-</td>
+<form id="formulaire" method="post" action="/cgi-bin/timelapse_params.py">
 
-<td width>
-</td>
-
-<td width = 8%>
-<form id="formulaire" action="/cgi-bin/next_pic.py" Method="post" accept-charset="utf-8" lang="fr" >
-<input type="submit" name="next_pic" value=">" id= "send_button" style="height: 100px; width: 100px; font-size: 4em;">
+    <div style="margin-bottom: 10px">
+        <label>Durée totale du timelapse (en heures, pauses incluses) :</label>
+        <input type="text" name="duration">
+    </div>
+    <div style="margin-bottom: 10px">
+        <label>Début de la tranche horaire (heure, ex : 8) :</label>
+        <input type="text" name="start">
+    </div>
+    <div style="margin-bottom: 10px">
+        <label>Fin de la tranche horaire (ex : 18) :</label>
+        <input type="text" name="end">
+    </div>
+    <div style="margin-bottom: 20px;">
+        <label>Intervalle entre 2 images (en secondes) :</label>
+        <input type="text" name="interval">
+    </div>
+    <br>
+    <div class="button">
+        <button type="submit" id="send_button" style="height: 100px; width: 500px;">Paramétrer</button>
+    </div>
 </form>
-</td>
-<td width = 2%>
-</td>
-<td width = 8%>
-<form id="formulaire" action="/cgi-bin/last_pic.py" Method="post" accept-charset="utf-8" lang="fr" >
-<input type="submit" name="last_pic" value=">>" id= "send_button" style="height: 100px; width: 100px; font-size: 4em;">
-</form>
-</td>
-<td width = 2%>
-</td>
-</tr>
 </table>
 </div>
 
-<div id="section" style="text-align: center; top: 1400px;">
+<div style = "top: 900px; position: absolute; text-align: center; font-size: 2em;">
+"""
+
+print """
+<tr>
 <td>
-<form id="formulaire" action="/cgi-bin/timelapse_page.py" method="post" accept-charset="utf-8" lang="fr" >
-<input type="submit" name="timelapse_page" value="Lancer un timelapse" id= "send_button" style="height: 100px; width: 600px; font-size: 4em;">
+Estimation de l'espace de stockage nécessaire selon les paramètres entrés : 
+"""
+print(timelapse_size)
+print """
+ MB
+</td>
+<br><br>
+<form id="form_launch" action="/cgi-bin/timelapse_launch.py" method="post" accept-charset="utf-8" lang="fr" >
+<input type="submit" name="launch" value="Lancer le timelapse" id= "send_button" style="height: 100px; width: 700px; font-size: 2em;";>
 </form>
 </td>
-</div>
+</tr>
 
 """
 
 print """
+</div>
+
 <!-- *********************************AUTRES ELEMENTS DE LA PAGE************************************** !-->
 <div id="footer" style="color: #B45F04;">
 	Copyright © Econect

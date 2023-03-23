@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#! /usr/bin/python
 #-*- coding: utf-8 -*-
 
 import os
@@ -13,4 +13,3 @@ fichier2.write("1")
 fichier2.close()	
 	
 os.system('python display_page.py')
-		

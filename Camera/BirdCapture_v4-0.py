@@ -15,12 +15,9 @@ CHECK_INTERVAL = 1   # Interval of time (in sec.) between cam status checking
 cam_state = ''
 timelapse_state = ''
 
-# To be sure that cam and timelapse modes are off when the pi starts
+# To be sure that cam state is stopped at the beginning
 fichier = open("/var/www/cgi-bin/cam_state.txt", "w")
 fichier.write("stop")
-fichier.close()
-fichier = open("/var/www/cgi-bin/timelapse_state.txt", "w")
-fichier.write("off")
 fichier.close()
 
 
@@ -36,18 +33,10 @@ class check_status(Thread):
     def run(self):
         
         global cam_state
-        global timelapse_state
-        cam_state = "running"
-        timelapse_state = "off"
-        
         print("Thread running...")
         
         fichier = open("/var/www/cgi-bin/cam_state.txt", "r")
         cam_state = fichier.read()
-        fichier.close()
-        
-        fichier = open("/var/www/cgi-bin/timelapse_state.txt", "r")
-        timelapse_state = fichier.read()
         fichier.close()
         
         while True:
@@ -58,10 +47,6 @@ class check_status(Thread):
                 
                 fichier = open("/var/www/cgi-bin/cam_state.txt", "r")
                 cam_state = fichier.read()
-                fichier.close()
-                
-                fichier = open("/var/www/cgi-bin/timelapse_state.txt", "r")
-                timelapse_state = fichier.read()
                 fichier.close()
                                 
 
@@ -113,69 +98,72 @@ def get_timelapse_params():
 
 thread_statusCheck = check_status(CHECK_INTERVAL)
 thread_statusCheck.start()
-cam_closed = True  # real state of the picamera
-get_params = False  # True only when timelapse params are read
+cam_closed = True  # real state of the picamera != the one given by the user
+get_params = False  # True only when timelapse parameters are read
 
 
 while True:
-
-    if cam_state == "record":
-        
-        if timelapse_state == "on":
-            current_hour = int(time.strftime("%H", time.localtime()))
-            
-            if get_params == False:
-                # 1st time: we fetch the timelapse params
-                params = get_timelapse_params()
-                timelapse_end = params["timelapse_end"]
-                interval = params["interval"]
-                range_start = params["range_start"]
-                range_end = params["range_end"]
-                get_params = True
-            
-            if (current_hour >= range_start and current_hour < range_end and
-                time.time() < timelapse_end):
-                
-                # Reactivate the camera when in time range
-                if cam_closed:
-                    camera = picamera.PiCamera()
-                    camera.resolution = (WIDTH, HEIGHT)
-                    time.sleep(2)     # warm-up time
-                    print("Camera activated")
-                    cam_closed = False
-                record(preview=False, pause=interval)
-            
-            # Camera stopped at night (or at the very end of timelapse)
-            if current_hour >= range_end or time.time() >= timelapse_end:
-                camera.close()
-                print("Camera stopped")
-                cam_closed = True
-                
-            # End of timelapse
-            if time.time() >= timelapse_end:
-                fichier = open("/var/www/cgi-bin/cam_state.txt", "w")
-                fichier.write("stop")
-                fichier.close()
-                fichier = open("/var/www/cgi-bin/timelapse_state.txt", "w")
-                fichier.write("off")
-                fichier.close()
-                get_params = False
-        
-        # out of timelapse, record a "preview" pic updated every 2 sec
-        else:
-            get_params = False
-            if cam_closed:
-                camera = picamera.PiCamera()
-                camera.resolution = (WIDTH, HEIGHT)
-                time.sleep(2)     # warm-up time
-                print("Camera activated")
-                cam_closed = False
-            record(preview=True, pause=5)
     
-    # when the camera is stopped (not automatically during the timelapse, but
-    # by the user)
-    elif cam_closed == False:
+    current_hour = int(time.strftime("%H", time.localtime()))
+    if cam_state == "stop": get_params = False
+    
+    # Part that manages the activation and closure of the picamera
+    
+    if (cam_state == "preview" or cam_state=="timelapse") and cam_closed:
+        camera = picamera.PiCamera()
+        camera.resolution = (WIDTH, HEIGHT)
+        time.sleep(2)     # warm-up time
+        cam_closed = False
+        print("Camera activated")
+    
+    if (cam_state == "stop" or cam_state == "pause") and not cam_closed:
         camera.close()
-        print("Camera stopped")
         cam_closed = True
-        if timelapse_state == "off": get_params = False # True when just paused
+        print("Camera closed")
+    
+    # Preview
+    if cam_state == "preview": record(preview=True, pause=5)
+    
+    # Timelapse, when not paused
+    if cam_state == "timelapse":
+        
+        if get_params == False:
+            # 1st time: we fetch the timelapse params
+            params = get_timelapse_params()
+            timelapse_end = params["timelapse_end"]
+            interval = params["interval"]
+            range_start = params["range_start"]
+            range_end = params["range_end"]
+            get_params = True
+        
+        if (current_hour >= range_start and current_hour < range_end and
+            time.time() < timelapse_end):
+            record(preview=False, pause=interval)
+            
+        # Camera stopped at night
+        if current_hour >= range_end :
+            fichier = open("/var/www/cgi-bin/cam_state.txt", "w")
+            fichier.write("pause")
+            fichier.close()
+        
+        # End of timelapse
+        if time.time() >= timelapse_end:
+            fichier = open("/var/www/cgi-bin/cam_state.txt", "w")
+            fichier.write("stop")
+            fichier.close()
+            get_params = False
+    
+    # When the timelapse is initiated, but paused (ex: at night)
+    if cam_state == "pause":
+        
+        # Timelapse resumes
+        if current_hour > range_start :
+            fichier = open("/var/www/cgi-bin/cam_state.txt", "w")
+            fichier.write("timelapse")
+            fichier.close()
+        
+        # If the timelapse ends during the pause
+        if time.time() >= timelapse_end:
+            fichier = open("/var/www/cgi-bin/cam_state.txt", "w")
+            fichier.write("stop")
+            fichier.close()

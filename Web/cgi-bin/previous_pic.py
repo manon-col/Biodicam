@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#! /usr/bin/python
 #-*- coding: utf-8 -*-
 
 import os
@@ -36,5 +36,5 @@ if pic_num < 1:
 	fichier2 = open("picture_num.txt", "w")
 	fichier2.write("1")
 	fichier2.close()	
-	
+
 os.system('python display_page.py')
