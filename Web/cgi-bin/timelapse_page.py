@@ -1,11 +1,29 @@
 #! /usr/bin/python
 #-*- coding: utf-8 -*-
 
+
+import json
 import os
+import socket
+from subprocess import check_output
 
 print("Content-Type: text/html; charset=utf-8\n\n")     
 
-ip_biodicam = '192.168.4.1'
+def get_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.settimeout(0)
+    try:
+        # doesn't even have to be reachable
+        s.connect(('10.254.254.254', 1))
+        IP = s.getsockname()[0]
+    except Exception:
+        IP = '127.0.0.1'
+    finally:
+        s.close()
+    return IP
+
+hostname = socket.gethostname()
+ip_biodicam = get_ip()
 
 # Get size of all images in the file
 path = "/var/www/html/img/biodicam"
@@ -18,9 +36,14 @@ for filename in os.listdir(path):
 BytesPerMB = 1024 * 1024
 directory_size = float(directory_size/BytesPerMB)
 
-f = open("size.txt", "r")
-timelapse_size = f.read()
-f.close()
+# reads the estimated size (storage, + number of images) of the timelapse,
+# calculated with the chosen parameters
+file = open('cam_infos.json', 'r')
+data = json.load(file)
+nb_pics = data['estimated_nb_pics']
+timelapse_size = data['estimated_size']
+file.close()
+
 
 print '''
 <head>
@@ -275,7 +298,7 @@ print '''
 print"""
 <!-- *****************************TEXTE A MODIFIER********************************** !-->
 
-<div style = "top: 330px; position: absolute; text-align: center; font-size: 2em;">
+<div id="section" style = "top: 330px; position: absolute; text-align: center; font-size: 2em;">
 <td>
 Espace de stockage utilisé : 
 """
@@ -316,28 +339,33 @@ MB
 </div>
 
 <div style = "top: 900px; position: absolute; text-align: center; font-size: 2em;">
-"""
-
-print """
 <tr>
 <td>
+Estimation du nombre de photos à prendre selon les paramètres entrés :
+"""
+print(nb_pics)
+
+print """
+<br>
 Estimation de l'espace de stockage nécessaire selon les paramètres entrés : 
 """
 print(timelapse_size)
 print """
  MB
 </td>
-<br><br>
+</tr>
+</div>
+
+<div id="section" style = "top: 1400px; position: absolute; text-align: center; font-size: 2em;">
+<table>
 <form id="form_launch" action="/cgi-bin/timelapse_launch.py" method="post" accept-charset="utf-8" lang="fr" >
 <input type="submit" name="launch" value="Lancer le timelapse" id= "send_button" style="height: 100px; width: 700px; font-size: 2em;";>
 </form>
-</td>
-</tr>
-
+</table>
+</div>
 """
 
 print """
-</div>
 
 <!-- *********************************AUTRES ELEMENTS DE LA PAGE************************************** !-->
 <div id="footer" style="color: #B45F04;">

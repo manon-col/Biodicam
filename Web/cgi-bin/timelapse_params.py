@@ -1,33 +1,24 @@
 #! /usr/bin/python
 #-*- coding: utf-8 -*-
 
+
 import cgi
 import datetime
+import json
 import os
+import time
 
 print ("Content-Type: text/html; charset=utf-8\n\n")
 
-form = cgi.FieldStorage()
+form = cgi.FieldStorage()  # gets inputs of the html form (timelapse_page.py)
 
 duration = form["duration"].value
 start_range = form["start"].value
 end_range = form["end"].value
 interval = form["interval"].value
 
-fichier = open("duration.txt", "w")
-fichier.write(duration)
-fichier.close()
 
-fichier = open("time_range.txt", "w")
-fichier.writelines([start_range, "\n", end_range])
-fichier.close()
-
-fichier = open("interval.txt", "w")
-fichier.write(interval)
-fichier.close()
-
-
-def estimate_size():
+def estimate_result():
     """function that calculate the total number of pictures that would be
     recorded during the timelapse in function of the parameters given by the
     user, then multiplicate it by the estimated size of a picture"""
@@ -64,20 +55,32 @@ def estimate_size():
         total_time += datetime.datetime.combine(datetime.date.min, record_end)\
             - datetime.datetime.combine(datetime.date.min, record_start)
     
-    # Case when timelapse ends the same day
-    if total_time == 0.0:
-        part_end = timelapse_start.replace(hour=day_end.hour, minute=0, second=0)
-        total_time = part_end - timelapse_start
-    
     total_seconds = total_time.days*86400 + total_time.seconds
     nb_pics = total_seconds/interval
     
-    return nb_pics*pic_size
+    return nb_pics, nb_pics*pic_size
 
-size = estimate_size()
+# additional parameters
+estimate = estimate_result()
+estimated_nb_pics = estimate[0]
+estimated_size = estimate[1]
+total_duration = int(duration)*3600
+timelapse_end = time.time() + total_duration
 
-file = open("size.txt", "w")
-file.write(str(size))
+# writes all the parameters in the json file
+file = open('cam_infos.json', 'r')
+data = json.load(file)
+file.close()
+data['duration'] = duration
+data['timelapse_end'] = timelapse_end
+data['start_range'] = start_range
+data['end_range'] = end_range
+data['interval'] = interval
+data['estimated_nb_pics'] = estimated_nb_pics
+data['estimated_size'] = estimated_size
+
+file = open('cam_infos.json', 'w')
+json.dump(data, file)
 file.close()
 
 os.system('python timelapse_page.py')

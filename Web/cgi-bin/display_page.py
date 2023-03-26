@@ -1,19 +1,37 @@
 #! /usr/bin/python
 #-*- coding: utf-8 -*-
 
-import socket
-import os
-from subprocess import check_output
 
+import json
+import os
+import socket
+from subprocess import check_output
 
 print("Content-Type: text/html; charset=utf-8\n\n")         
 
-ip_biodicam = '192.168.4.1'
+def get_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.settimeout(0)
+    try:
+        # doesn't even have to be reachable
+        s.connect(('10.254.254.254', 1))
+        IP = s.getsockname()[0]
+    except Exception:
+        IP = '127.0.0.1'
+    finally:
+        s.close()
+    return IP
+
+hostname = socket.gethostname()
+ip_biodicam = get_ip()
+
+#ip_biodicam = check_output(['hostname', '-I'])[0:-2] # ne fonctionne que quand connecté au Wifi (en plus du point d'accès)
+#ip_biodicam = "192.168.167.238" # IP sujette à modification
 
 
-fichier = open("cam_state.txt", "r")
-state = fichier.read()
-fichier.close()
+file = open('cam_infos.json', 'r')
+state = json.load(file)['cam_state']
+file.close()
 
 if state == "preview":
 	cam_status = "Preview mode on" 
@@ -26,9 +44,9 @@ elif state == "stop":
 
 
 # Lecture du n° d'image à afficher
-fichier2 = open("picture_num.txt", "r")
-pic_num = int(fichier2.read())
-fichier2.close()
+file = open("picture_num.txt", "r")
+pic_num = int(file.read())
+file.close()
 
 source_dir = "/var/www/html/img/biodicam/"
 os.chdir(source_dir)
@@ -37,15 +55,15 @@ os.chdir("/var/www/cgi-bin/")
 
 if pic_num > len(file_names):
 	pic_num = len(file_names)
-	fichier2 = open("picture_num.txt", "w")
-	fichier2.write(str(len(file_names)))
-	fichier2.close()
+	file = open("picture_num.txt", "w")
+	file.write(str(len(file_names)))
+	file.close()
 	
 if pic_num < 1:
 	pic_num = 1
-	fichier2 = open("picture_num.txt", "w")
-	fichier2.write("1")
-	fichier2.close()	
+	file = open("picture_num.txt", "w")
+	file.write("1")
+	file.close()	
 		
 #file_path = "http://"+ ip_biodicam + "/img/biodicam/" + file_names[-1]
 file_path = "http://"+ ip_biodicam + "/img/biodicam/" + file_names[pic_num-1]
@@ -55,6 +73,7 @@ file_name_disp = file_names[pic_num-1]
 
 
 print '''
+<html>
 <head>
 	<title>Sélection des données à afficher</title>
 	<meta http-equiv="content-type" content="text/html; charset=UTF-8" />

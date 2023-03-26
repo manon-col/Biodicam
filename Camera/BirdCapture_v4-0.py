@@ -3,27 +3,29 @@
 # records preview images.
 
 
-import time
+import json
 import picamera
 from threading import Thread
+import time
 
 
 WIDTH = 1920         # Horizontal resolution of recorded pics
 HEIGHT = 1088         # Vertical resolution of recorded pics
 CHECK_INTERVAL = 1   # Interval of time (in sec.) between cam status checking
-
 cam_state = ''
-timelapse_state = ''
 
-# To be sure that cam state is stopped at the beginning
-fichier = open("/var/www/cgi-bin/cam_state.txt", "w")
-fichier.write("stop")
-fichier.close()
+# To be sure that cam state is "stop" when the raspberry pi starts
+file = open('/var/www/cgi-bin/cam_infos.json', 'r')
+data = json.load(file)
+file.close()
+data['cam_state'] = 'stop'
+file = open('/var/www/cgi-bin/cam_infos.json', 'w')
+json.dump(data, file)
+file.close()
 
 
 class check_status(Thread):
-    """Allows to check at regular intervals if the camera is activated by the
-    user (stop/record mode), as well as timelapse mode (on/off)"""
+    """Allows to check at regular intervals the user-defined camera status"""
     
     def __init__(self,time_interval):
         Thread.__init__(self)
@@ -35,9 +37,9 @@ class check_status(Thread):
         global cam_state
         print("Thread running...")
         
-        fichier = open("/var/www/cgi-bin/cam_state.txt", "r")
-        cam_state = fichier.read()
-        fichier.close()
+        file = open('/var/www/cgi-bin/cam_infos.json', 'r')
+        cam_state = json.load(file)['cam_state']
+        file.close()         
         
         while True:
             
@@ -45,10 +47,10 @@ class check_status(Thread):
             if now - self.last_check > self.time_interval:
                 self.last_check = now
                 
-                fichier = open("/var/www/cgi-bin/cam_state.txt", "r")
-                cam_state = fichier.read()
-                fichier.close()
-                                
+                file = open('/var/www/cgi-bin/cam_infos.json', 'r')
+                cam_state = json.load(file)['cam_state']
+                file.close()
+
 
 def record(preview, pause):
     """Function that triggers a shot, records the image depending on whether it
@@ -65,32 +67,24 @@ def record(preview, pause):
 
     
 def get_timelapse_params():
-    """Function that reads all timelapse parameters stored in text files"""
+    """Function that reads all timelapse parameters stored in the json file"""
     
-    # Reading the total timelapse duration (hours, pauses included)
-    fichier = open("/var/www/cgi-bin/duration.txt", "r")
-    total_duration = int(fichier.read())*3600
-    fichier.close()
-    timelapse_end = time.time() + total_duration
-    
-    # Reading the interval between 2 pics (in seconds)
-    fichier = open("/var/www/cgi-bin/interval.txt", "r")
-    interval = int(fichier.read())
-    fichier.close()
-    
-    # Reading the time range of the recording
-    fichier = open("/var/www/cgi-bin/time_range.txt", "r")
-    temp = fichier.read().splitlines()
-    fichier.close()
-    #  1st line of the text file = start time (hour)
-    range_start = int(temp[0])
-    #  2nd line = end
-    range_end = int(temp[1])
-    
-    params = {"timelapse_end":timelapse_end, "interval":interval,
-              "range_start":range_start, "range_end":range_end}
-    
+    file = open('/var/www/cgi-bin/cam_infos.json', 'r')
+    params = json.load(file)
+    file.close()
     return params
+
+
+def write_state(state):
+    """Function that changes the value of cam_state in the json file"""
+    
+    file = open('/var/www/cgi-bin/cam_infos.json', 'r')
+    data = json.load(file)
+    file.close()
+    data['cam_state'] = state
+    file = open('/var/www/cgi-bin/cam_infos.json', 'w')
+    json.dump(data, file)
+    file.close()
 
 
 #### Camera management loop ####
@@ -105,65 +99,60 @@ get_params = False  # True only when timelapse parameters are read
 while True:
     
     current_hour = int(time.strftime("%H", time.localtime()))
-    if cam_state == "stop": get_params = False
+
+    if cam_state == 'stop': get_params = False
     
-    # Part that manages the activation and closure of the picamera
+    # Part that manages the activation and closure of the picamera, matching the
+    # user's instructions to the actual condition of the picamera
     
-    if (cam_state == "preview" or cam_state=="timelapse") and cam_closed:
+    if (cam_state == 'preview' or cam_state=='timelapse') and cam_closed:
         camera = picamera.PiCamera()
         camera.resolution = (WIDTH, HEIGHT)
         time.sleep(2)     # warm-up time
         cam_closed = False
-        print("Camera activated")
+        print("Camera is on")
     
-    if (cam_state == "stop" or cam_state == "pause") and not cam_closed:
+    if (cam_state == 'stop' or cam_state == 'pause') and not cam_closed:
         camera.close()
         cam_closed = True
         print("Camera closed")
     
-    # Preview
-    if cam_state == "preview": record(preview=True, pause=5)
+    # Preview mode
+    if cam_state == 'preview': record(preview=True, pause=5)
     
-    # Timelapse, when not paused
-    if cam_state == "timelapse":
+    # Timelapse, when not paused (= in the time range)
+    if cam_state == 'timelapse':
         
         if get_params == False:
-            # 1st time: we fetch the timelapse params
+            # At the beginning of the timelapse: fetches its parameters
             params = get_timelapse_params()
-            timelapse_end = params["timelapse_end"]
-            interval = params["interval"]
-            range_start = params["range_start"]
-            range_end = params["range_end"]
+            timelapse_end = params['timelapse_end']
+            interval = params['interval']
+            start_range = params['start_range']
+            end_range = params['end_range']
             get_params = True
         
-        if (current_hour >= range_start and current_hour < range_end and
+        if (current_hour >= start_range and current_hour < end_range and \
             time.time() < timelapse_end):
             record(preview=False, pause=interval)
             
         # Camera stopped at night
-        if current_hour >= range_end :
-            fichier = open("/var/www/cgi-bin/cam_state.txt", "w")
-            fichier.write("pause")
-            fichier.close()
+        if current_hour >= end_range :
+            write_state('pause')
         
         # End of timelapse
         if time.time() >= timelapse_end:
-            fichier = open("/var/www/cgi-bin/cam_state.txt", "w")
-            fichier.write("stop")
-            fichier.close()
+            write_state('stop')
             get_params = False
     
     # When the timelapse is initiated, but paused (ex: at night)
-    if cam_state == "pause":
+    if cam_state == 'pause':
         
         # Timelapse resumes
-        if current_hour > range_start :
-            fichier = open("/var/www/cgi-bin/cam_state.txt", "w")
-            fichier.write("timelapse")
-            fichier.close()
+        if current_hour >= start_range and current_hour < end_range :
+            write_state('timelapse')
         
         # If the timelapse ends during the pause
         if time.time() >= timelapse_end:
-            fichier = open("/var/www/cgi-bin/cam_state.txt", "w")
-            fichier.write("stop")
-            fichier.close()
+            write_state('stop')
+            get_params = False
