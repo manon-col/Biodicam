@@ -4,63 +4,54 @@
 <head>
 	<title>Sélection des données à afficher</title>
 	<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-	<link rel="stylesheet" href="style.css" />
+	<link href="style.css" rel="stylesheet" media="all" type="text/css">
 	<link rel="icon" type="image/png" href="img/econect-favicon.png" />
-
 </head>
 
 <body>
 
-<div id="header_t" class="site-header">
+<div id="header_t">
 	<table id="entete" border=0>
 		<tr height=250px>
 
 			<td width=5px>
-
 			</td>
+			
 			<td width = 20%>
 				<img src = "img/logo-econect.png" width=250px>
 			</td>
 			
 			<td td width=75%>
-				<h1 style="text-align: center; top: 0px; font-size: 1.4 em; color: #B45F04; line-height:0.4; font-weight: bold;">BiodiCam</h1>
+				<h1 id="h1" style="top: 30px;">BiodiCam</h1>
 			</td>
 
 		</tr>
 	</table>
 </div>
 
+
 <!-- *****************************TEXTE A MODIFIER********************************** !-->
 
-<div id="section" style="text-align: center;">
 
-<table style="margin: 0 auto;">
-
-<td>
-<td height=150px>
-</td>
-<tr>
-<td>
-<form id="formulaire" action="/cgi-bin/display_page.py" Method="post" accept-charset="utf-8" lang="fr" >
-<input type="submit" name="user_interface" value="User interface" style="text-align: center; height: 100px; width: 400px; font-size: 4em;";>
-</form>
-</td>
-</tr>
-</table>
+<div id="section" style="top: 750px;">
+    <table id="table">
+        <tr>
+            
+            <td>
+            <form action="/cgi-bin/display_page.py" Method="post" accept-charset="utf-8" lang="fr" >
+            <input type="submit" name="user_interface" value="Accéder à l'interface" id="send_button" style="width: 600px">
+            </form>
+            </td>
+            
+        </tr>
+    </table>
 </div>
 
 
 <!-- *********************************AUTRES ELEMENTS DE LA PAGE************************************** !-->
 
 
-
-
-
-
-
-
-
-<div id="footer" style="color: #B45F04;">
+<div id="footer">
 	Copyright © Econect
 </div>
  

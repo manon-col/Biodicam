@@ -1,26 +1,21 @@
-<style>
+Content-Type: text/css; charset=UTF-8;
 
 /* Pour info, codes couleurs utilisés :
 Bleu super foncé : #333A40
 Bleu roy : #1f497d
 Bleu clair moyen : #729EBF
 Bleu très clair : #E6EBFF
-
 */
+
+<style>
 
 body {
     font-size: 100%;
 	background-color:#E6EBFF;
 }
 
-
-
-
-
 #toto { 
-
 }
-  
 
 #header_t {
     background-color:#F5DA81;
@@ -37,10 +32,6 @@ body {
 	transform: scale(1); 
 }
 
-
-
-
-
 #section {
 	width: 90%; 
 	margin-left: auto;
@@ -51,8 +42,7 @@ body {
 	height: 500px; /* auto à l'origine */
     padding:2%;	
 	font-family: Arial;
-	font-size: 1em;
-	text-align: justify;
+	text-align: center;
 	line-height:1em;
 	transform: scale(1); 
 }
@@ -71,25 +61,6 @@ body {
 	font-size: 1em;
 	text-align: justify;
 	line-height:1.2em;
-	transform: scale(1); 
-}
-
-#footer {
-    background-color:#F5DA81;
-	position: fixed;
-	bottom: 0px;
-	left: 0px;
-	width: 100%;
-	height: 75px;
-    color:white;
-    clear:both;
-    text-align:center;
-	vertical-align:15px; 
-	padding:10px;	 
-	position: fixed;   
-	font-family: Arial;
-	font-size: 3em;
-	z-index: 1995;
 	transform: scale(1); 
 }
 
@@ -112,6 +83,8 @@ body {
 	transform: scale(1); 
 }
 
+#table {
+    margin: 0 auto;}
 
 #input_field{
 	font-size: 6em;
@@ -125,8 +98,28 @@ body {
 	
 }
 
+#footer {
+    background-color:#F5DA81;
+    color: #B45F04
+	position: fixed;
+	bottom: 0px;
+	left: 0px;
+	width: 100%;
+	height: 75px;
+    color:white;
+    clear:both;
+    text-align:center;
+	vertical-align:15px; 
+	padding:10px;
+	position: fixed;   
+	font-family: Arial;
+	font-size: 3em;
+	z-index: 1995;
+	transform: scale(1); 
+}
+
 #select_list{
-font-size: 6em;
+	font-size: 6em;
 	width: 380px;
 	height: 120px;
 	border-style: solid;
@@ -148,24 +141,26 @@ font-size: 6em;
 	font-size: 1.6em;
 }
 
-
 #send_button{
-	width: 200px;
-	height: 120px;
-	border-style: solid;
-	border-width: 1px;
-	border-color: black;
-	font-size: 2em;
-	color: white;
-	background-color: #DF7401;
+    height: 100px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+    font-size: 4em;
+    color: white;
+    background-color: #DF7401;
 	}
 	
 #send_button:hover {
     background-color: #F7BE81;
-	color: white;
+    color: white;
 	}
 	
-	
+#formulaire{
+    font-style: normal;
+    width: 100%;
+}
+
 #squ-select{
 	position: relative;
 	width:80%;
@@ -186,40 +181,30 @@ font-size: 6em;
 	border-color: black;
 	}
 
-	
 #squ-select:hover {
     background: #F7BE81;
-	color: white;
-	text-decoration-color: #729EBF;
+    color: white;
+    text-decoration-color: #729EBF;
 }
-
-
-
-	
-#formulaire{
-	font-style: normal;
-	font-size:0.875em;
-	width: 100%;
-}
-
-
 
 h1{
-	text-align: left;
-	position: relative;
+    text-align: center;
+    position: relative;
 	font-size: 6em;
+	line-height: 1;
+	color: #B45F04;
+	font-family: Arial;
+	font-weight: bold;
+}
+
+h2{
+	text-align: center;
+	position: relative;
+	font-size: 4em;
 	line-height: 0.4em;
 	color: #1f497d;
 	font-family: Arial;
 }
-
-h2 {
-    font-size: 1.2em;
-	text-align: left;
-	line-height: 1.4em;
-	font-family: Arial;
-}
-
 
 h3{
 	text-align: center;
@@ -245,18 +230,14 @@ h5{
 	top: 20;
 	left: 0;
     height: 500px; /* original height */
-    width: 100%; /* original width */
+	width: 100%; /* original width */
 }
+
 #frame {
-    height: 500px; /* new height (400 * (1/0.8) ) */
-    width: 100%; /* new width (100 * (1/0.8) )*/
-
-    transform: scale(2.5); 
-    transform-origin: 0 0;
+	height: 500px; /* new height (400 * (1/0.8) ) */
+	width: 100%; /* new width (100 * (1/0.8) )*/
+	transform: scale(2.5); 
+	transform-origin: 0 0;
 }
-
-
- 
-
 
 </style>

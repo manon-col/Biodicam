@@ -39,7 +39,7 @@ class check_status(Thread):
         
         file = open('/var/www/cgi-bin/cam_infos.json', 'r')
         cam_state = json.load(file)['cam_state']
-        file.close()         
+        file.close()
         
         while True:
             
@@ -78,6 +78,7 @@ def get_timelapse_params():
 def write_state(state):
     """Function that changes the value of cam_state in the json file"""
     
+    global CHECK_INTERVAL
     file = open('/var/www/cgi-bin/cam_infos.json', 'r')
     data = json.load(file)
     file.close()
@@ -85,6 +86,7 @@ def write_state(state):
     file = open('/var/www/cgi-bin/cam_infos.json', 'w')
     json.dump(data, file)
     file.close()
+    time.sleep(CHECK_INTERVAL) # to avoid errors with check_status...
 
 
 #### Camera management loop ####
@@ -143,16 +145,14 @@ while True:
         # End of timelapse
         if time.time() >= timelapse_end:
             write_state('stop')
-            get_params = False
     
     # When the timelapse is initiated, but paused (ex: at night)
     if cam_state == 'pause':
         
         # Timelapse resumes
-        if current_hour >= start_range and current_hour < end_range :
+        if current_hour >= start_range and current_hour < end_range:
             write_state('timelapse')
         
         # If the timelapse ends during the pause
         if time.time() >= timelapse_end:
             write_state('stop')
-            get_params = False
