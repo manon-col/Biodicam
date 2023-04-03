@@ -247,7 +247,7 @@ print """
         font-style: normal;
         width: 100%;
     }
-
+    
     #squ-select{
     	position: relative;
     	width:80%;
@@ -478,18 +478,41 @@ print """
 """
 
 if state == 'timelapse' or state == 'pause':
-    hours, rem = divmod(timelapse_end-time.time(), 3600)
-    minutes, seconds = divmod(rem, 60)
+    
+    remaining_time = int(timelapse_end-time.time())
+    days = remaining_time // (24 * 3600)
+    remaining_time = remaining_time % (24 * 3600)
+    hours = remaining_time // 3600
+    remaining_time %= 3600
+    minutes = remaining_time // 60
+    remaining_time %= 60
+    seconds = remaining_time
+    
     print'''
     <div id="section" style="top: 1550px; font-size: 2em">
-    Temps restant avant la fin du timelapse :
     '''
-    print("{:0>2}:{:0>2}:{:05.2f}".format(int(hours),int(minutes),seconds))
+    print("Temps restant avant la fin du timelapse : {} jour(s), {} heure(s), {} minute(s), {} seconde(s)".format(days, hours, minutes, seconds))
     print'''
     </div>
     '''
-    
+
 print """
+
+<div id="section" style ="top: 1700px">
+
+<td>
+<form id="formulaire" action="/cgi-bin/shutdown.py" method="post" accept-charset="utf-8" lang="fr" >
+<input type="image" src="http://
+"""
+print(ip_biodicam)
+
+print """
+/img/shutdown.png" alt="Arrêt" width="100px">
+</form>
+</td>
+    
+</div>
+
 
 
 <!-- *********************************AUTRES ELEMENTS DE LA PAGE************************************** !-->

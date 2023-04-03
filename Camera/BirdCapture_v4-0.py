@@ -11,7 +11,7 @@ import time
 
 WIDTH = 1920         # Horizontal resolution of recorded pics
 HEIGHT = 1088         # Vertical resolution of recorded pics
-CHECK_INTERVAL = 1   # Interval of time (in sec.) between cam status checking
+CHECK_INTERVAL = 2   # Interval of time (in sec.) between cam status checking
 cam_state = ''
 
 # To be sure that cam state is "stop" when the raspberry pi starts
@@ -102,7 +102,7 @@ while True:
     
     current_hour = int(time.strftime("%H", time.localtime()))
 
-    if cam_state == 'stop': get_params = False
+    if cam_state == 'stop' or cam_state == 'preview': get_params = False
     
     # Part that manages the activation and closure of the picamera, matching the
     # user's instructions to the actual condition of the picamera

@@ -332,31 +332,35 @@ print """
     </td>
 </div>
 
-<div id="section" style = "top: 500px;">
+<div id="section" style = "top: 450px; line-height:2.5em;">
     <table>
     <form id="formulaire" method="post" action="/cgi-bin/timelapse_params.py">
     
-        <div style="margin-bottom: 10px; font-size:2em;">
+        <div style="margin-bottom: 10px; font-size: 2.5em;">
             <label>Durée totale du timelapse (en heures, pauses incluses) :</label>
-            <input type="number" name="duration">
+            <br>
+            <input type="number" name="duration" style="font-size: 1em; text-align: center;">
         </div>
         <br>
         
-        <div style="margin-bottom: 10px; font-size:2em;">
+        <div style="margin-bottom: 10px; font-size: 2.5em;">
             <label>Début de la tranche horaire (heure, ex : 8) :</label>
-            <input type="number" name="start">
+            <br>
+            <input type="number" name="start" style="font-size: 1em; text-align: center;">
         </div>
         <br>
         
-        <div style="margin-bottom: 10px; font-size:2em;">
+        <div style="margin-bottom: 10px; font-size: 2.5em;">
             <label>Fin de la tranche horaire (ex : 18) :</label>
-            <input type="number" name="end">
+            <br>
+            <input type="number" name="end" style="font-size: 1em; text-align: center;">
         </div>
         <br>
         
-        <div style="margin-bottom: 20px; font-size:2em;">
+        <div style="margin-bottom: 20px; font-size: 2.5em;">
             <label>Intervalle entre 2 images (en secondes) :</label>
-            <input type="number" name="interval">
+            <br>
+            <input type="number" name="interval" style="font-size: 1em; text-align: center;">
         </div>
         <br>
         
@@ -368,7 +372,7 @@ print """
 </table>
 </div>
 
-<div id="section" style="top: 1000px; font-size:2em;">
+<div id="section" style="top: 1250px; font-size:2em;">
     <tr>
     
         <td>
@@ -384,13 +388,13 @@ print(timelapse_size)
 print """
           MB
         <br><br>
-        Note : les estimations sont significatives pour une durée de timelapse > 24h.
+        /!\ Les estimations sont significatives pour une durée de timelapse > 24h
         </td>
         
     </tr>
 </div>
 
-<div id="section" style = "top: 1400px;">
+<div id="section" style = "top: 1575px;">
 
     <table>
     <form id="formulaire" action="/cgi-bin/timelapse_launch.py" method="post" accept-charset="utf-8" lang="fr" >
